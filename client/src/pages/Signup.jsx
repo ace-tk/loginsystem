@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import '../styles/auth.css';
 
 const Signup = () => {
@@ -6,17 +7,19 @@ const Signup = () => {
     name: '',
     email: '',
     password: '',
+    confirmPassword: '',
   });
   const [message, setMessage] = useState({ type: '', text: '' });
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
   };
 
   const validate = () => {
-    const { name, email, password } = formData;
-    if (!name || !email || !password) {
+    const { name, email, password, confirmPassword } = formData;
+    if (!name || !email || !password || !confirmPassword) {
       setMessage({ type: 'error', text: 'All fields are required' });
       return false;
     }
@@ -29,32 +32,44 @@ const Signup = () => {
       setMessage({ type: 'error', text: 'Password must be at least 6 characters' });
       return false;
     }
+    if (password !== confirmPassword) {
+      setMessage({ type: 'error', text: 'Passwords do not match' });
+      return false;
+    }
     return true;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("Signup submitted");
     setMessage({ type: '', text: '' });
 
     if (!validate()) return;
 
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:5000/signup', {
+      const response = await fetch('http://localhost:5001/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+        }),
       });
 
       const data = await response.json();
 
       if (response.ok) {
         setMessage({ type: 'success', text: data.message });
-        setFormData({ name: '', email: '', password: '' });
+        setTimeout(() => {
+          navigate('/');
+        }, 2000);
       } else {
         setMessage({ type: 'error', text: data.message || 'Signup failed' });
       }
     } catch (error) {
+      console.error('Signup error:', error);
       setMessage({ type: 'error', text: 'Server error. Please try again later.' });
     } finally {
       setLoading(false);
@@ -115,12 +130,25 @@ const Signup = () => {
             </div>
           </div>
 
+          <div className="form-group">
+            <label htmlFor="confirmPassword">Confirm Password</label>
+            <div className="input-wrapper">
+              <input
+                type="password"
+                id="confirmPassword"
+                placeholder="••••••••"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+              />
+            </div>
+          </div>
+
           <button type="submit" className="login-button" disabled={loading} style={{ width: '100%', marginTop: '10px' }}>
             {loading ? 'Creating account...' : 'Signup'}
           </button>
 
           <p className="signup-text" style={{ textAlign: 'center', marginTop: '20px' }}>
-            Already have an account? <a href="/" onClick={(e) => { e.preventDefault(); /* Logic to switch to Login */ }}>Login</a>
+            Already have an account? <Link to="/">Login</Link>
           </p>
         </form>
       </div>
