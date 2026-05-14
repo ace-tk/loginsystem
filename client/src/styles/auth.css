@@ -215,6 +215,27 @@
   height: 16px;
 }
 
+/* Message styles */
+.message {
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.message.error {
+  background-color: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
+.message.success {
+  background-color: #dcfce7;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+}
+
 @media (max-width: 400px) {
   .login-content {
     width: 92%;
